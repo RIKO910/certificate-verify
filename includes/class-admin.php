@@ -107,7 +107,43 @@ class Certificate_Verification_Admin {
     }
 
     public function admin_dashboard() {
+        // Include the WP_List_Table class if not already loaded
+        if (!class_exists('WP_List_Table')) {
+            require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+        }
+
+        // Include our custom list table class
+        require_once CERT_VERIFICATION_PATH . 'includes/class-certificates-list-table.php';
+
+        // Create an instance of our custom list table
+        $certificates_table = new Certificates_List_Table();
+        $certificates_table->prepare_items();
+
+        // Get certificate counts
+        $total_certificates = $this->get_certificate_count();
+        $active_certificates = $this->get_certificate_count('active');
+        $expired_certificates = $this->get_certificate_count('expired');
+
+        // Include the dashboard template
         include CERT_VERIFICATION_PATH . 'templates/admin/dashboard.php';
+    }
+
+    private function get_certificate_count($status = 'all') {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'certificate_verification';
+
+        $query = "SELECT COUNT(*) FROM $table_name";
+
+        switch ($status) {
+            case 'active':
+                $query .= " WHERE is_active = 1 AND (expiry_date IS NULL OR expiry_date >= CURDATE())";
+                break;
+            case 'expired':
+                $query .= " WHERE (expiry_date IS NOT NULL AND expiry_date < CURDATE()) OR is_active = 0";
+                break;
+        }
+
+        return $wpdb->get_var($query);
     }
 
     public function add_certificate_page() {
