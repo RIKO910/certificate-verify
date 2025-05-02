@@ -5,7 +5,16 @@
 
     <hr class="wp-header-end">
 
-    <?php settings_errors(); ?>
+    <?php
+    if (isset($_GET['deleted'])) {
+        if ($_GET['deleted'] === '1') {
+            echo '<div class="notice notice-success"><p>' . __('Certificate deleted successfully.', 'certificate-verification') . '</p></div>';
+        } else {
+            echo '<div class="notice notice-error"><p>' . __('Error deleting certificate.', 'certificate-verification') . '</p></div>';
+        }
+    }
+    settings_errors();
+    ?>
 
     <div class="certificate-stats">
         <div class="stat-card">

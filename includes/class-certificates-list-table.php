@@ -49,9 +49,12 @@ class Certificates_List_Table extends WP_List_Table {
             'edit' => sprintf('<a href="?page=certificate_verification_add&action=edit&certificate_id=%s">%s</a>',
                 $item['certificate_id'],
                 __('Edit', 'certificate-verification')),
-            'delete' => sprintf('<a href="?page=certificate_verification&action=delete&certificate_id=%s&_wpnonce=%s" onclick="return confirm(\'Are you sure?\')">%s</a>',
-                $item['certificate_id'],
-                wp_create_nonce('delete_certificate_' . $item['certificate_id']),
+            'delete' => sprintf('<a href="%s" onclick="return confirm(\'%s\')">%s</a>',
+                wp_nonce_url(
+                    admin_url('admin.php?page=certificate_verification&action=delete&certificate_id=' . $item['certificate_id']),
+                    'delete_certificate_' . $item['certificate_id']
+                ),
+                __('Are you sure?', 'certificate-verification'),
                 __('Delete', 'certificate-verification'))
         );
 

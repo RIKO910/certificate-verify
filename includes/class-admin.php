@@ -14,6 +14,8 @@ class Certificate_Verification_Admin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_post_import_certificates', array($this, 'handle_csv_import'));
+        add_action('admin_init', array($this, 'handle_certificate_actions')); // Add this line
+
     }
 
     public function add_admin_menu() {
@@ -242,6 +244,37 @@ class Certificate_Verification_Admin {
             'error' => $error_count
         ), wp_get_referer()));
         exit;
+    }
+
+    public function handle_certificate_actions() {
+        if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['certificate_id'])) {
+            $this->delete_certificate();
+        }
+    }
+
+    private function delete_certificate() {
+        if (!isset($_GET['certificate_id']) || !isset($_GET['_wpnonce'])) {
+            wp_die(__('Invalid request.', 'certificate-verification'));
+        }
+
+        $certificate_id = sanitize_text_field($_GET['certificate_id']);
+        $nonce = sanitize_text_field($_GET['_wpnonce']);
+
+        // Verify nonce
+        if (!wp_verify_nonce($nonce, 'delete_certificate_' . $certificate_id)) {
+            wp_die(__('Security check failed.', 'certificate-verification'));
+        }
+
+        $db = Certificate_Verification_Database::get_instance();
+        $result = $db->delete_certificate($certificate_id);
+
+        if ($result) {
+            wp_redirect(admin_url('admin.php?page=certificate_verification&deleted=1'));
+            exit;
+        } else {
+            wp_redirect(admin_url('admin.php?page=certificate_verification&deleted=0'));
+            exit;
+        }
     }
 
     public function settings_page() {

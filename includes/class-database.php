@@ -137,7 +137,8 @@ class Certificate_Verification_Database {
 
         return $wpdb->delete(
             $this->table_name,
-            array('certificate_id' => $certificate_id)
+            array('certificate_id' => $certificate_id),
+            array('%s')
         );
     }
 
