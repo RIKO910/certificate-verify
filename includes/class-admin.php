@@ -14,7 +14,8 @@ class Certificate_Verification_Admin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_post_import_certificates', array($this, 'handle_csv_import'));
-        add_action('admin_init', array($this, 'handle_certificate_actions')); // Add this line
+        add_action('admin_init', array($this, 'handle_certificate_actions'));
+        add_action('admin_post_certificate_verification_add_certificate', array($this, 'process_add_certificate'));
 
     }
 
@@ -149,15 +150,37 @@ class Certificate_Verification_Admin {
     }
 
     public function add_certificate_page() {
+        $certificate = null;
+
+        // Check if this is an edit request
+        if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['certificate_id'])) {
+            $db = Certificate_Verification_Database::get_instance();
+            $certificate = $db->get_certificate(sanitize_text_field($_GET['certificate_id']));
+
+            if (!$certificate) {
+                wp_die(__('Certificate not found.', 'certificate-verification'));
+            }
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('add_certificate')) {
             $this->process_add_certificate();
         }
+
         include CERT_VERIFICATION_PATH . 'templates/admin/add-certificate.php';
     }
 
-    private function process_add_certificate() {
-        $db = Certificate_Verification_Database::get_instance();
+    public function process_add_certificate() {
+        // Verify nonce
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'add_certificate')) {
+            wp_die(__('Security check failed.', 'certificate-verification'));
+        }
 
+        // Check user capabilities
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.', 'certificate-verification'));
+        }
+
+        // Prepare certificate data
         $data = array(
             'certificate_id' => sanitize_text_field($_POST['certificate_id']),
             'student_name' => sanitize_text_field($_POST['student_name']),
@@ -165,26 +188,45 @@ class Certificate_Verification_Admin {
             'course_name' => sanitize_text_field($_POST['course_name']),
             'institution' => sanitize_text_field($_POST['institution']),
             'issue_date' => sanitize_text_field($_POST['issue_date']),
-            'expiry_date' => !empty($_POST['expiry_date']) ? sanitize_text_field($_POST['expiry_date']) : null,
-            'additional_data' => maybe_serialize($_POST['additional_data'])
+            'is_active' => 1
         );
 
-        $result = $db->add_certificate($data);
-
-        if ($result) {
-            add_settings_error(
-                'certificate_messages',
-                'certificate_added',
-                __('Certificate added successfully!', 'certificate-verification'),
-                'updated'
-            );
+        // Handle optional fields
+        if (!empty($_POST['expiry_date'])) {
+            $data['expiry_date'] = sanitize_text_field($_POST['expiry_date']);
         } else {
-            add_settings_error(
-                'certificate_messages',
-                'certificate_error',
-                __('Error adding certificate. Please try again.', 'certificate-verification'),
-                'error'
-            );
+            $data['expiry_date'] = null;
+        }
+
+        if (!empty($_POST['additional_data'])) {
+            $data['additional_data'] = maybe_serialize(json_decode(stripslashes($_POST['additional_data']), true));
+        }
+
+        $db = Certificate_Verification_Database::get_instance();
+
+        // Check if this is an update
+        if (!empty($_POST['original_certificate_id'])) {
+            $original_id = sanitize_text_field($_POST['original_certificate_id']);
+            $result = $db->update_certificate($original_id, $data);
+        } else {
+            // New certificate
+            $options = get_option('certificate_verification_options');
+            $data['verification_code'] = wp_generate_password(8, false);
+            $result = $db->add_certificate($data);
+        }
+
+        // Handle result
+        if ($result) {
+            wp_redirect(admin_url('admin.php?page=certificate_verification&updated=1'));
+            exit;
+        } else {
+            $error = __('Error saving certificate.', 'certificate-verification');
+            if (!empty($_POST['original_certificate_id'])) {
+                wp_redirect(admin_url('admin.php?page=certificate_verification_add&action=edit&certificate_id=' . urlencode($_POST['original_certificate_id']) . '&error=' . urlencode($error)));
+            } else {
+                wp_redirect(admin_url('admin.php?page=certificate_verification_add&error=' . urlencode($error)));
+            }
+            exit;
         }
     }
 

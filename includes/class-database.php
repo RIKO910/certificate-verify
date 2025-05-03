@@ -95,13 +95,8 @@ class Certificate_Verification_Database {
         // Future version updates can be handled here
     }
 
-    public function get_certificate($certificate_id, $verification_code = '') {
+    public function get_certificate($certificate_id) {
         global $wpdb;
-
-        $where = array('certificate_id' => $certificate_id);
-        if (!empty($verification_code)) {
-            $where['verification_code'] = $verification_code;
-        }
 
         return $wpdb->get_row(
             $wpdb->prepare("SELECT * FROM {$this->table_name} WHERE certificate_id = %s", $certificate_id)
@@ -122,13 +117,15 @@ class Certificate_Verification_Database {
         return $wpdb->insert($this->table_name, $data);
     }
 
-    public function update_certificate($certificate_id, $data) {
+    public function update_certificate($original_id, $data) {
         global $wpdb;
 
         return $wpdb->update(
             $this->table_name,
             $data,
-            array('certificate_id' => $certificate_id)
+            array('certificate_id' => $original_id),
+            null,
+            array('%s')
         );
     }
 

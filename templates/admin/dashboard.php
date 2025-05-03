@@ -13,6 +13,20 @@
             echo '<div class="notice notice-error"><p>' . __('Error deleting certificate.', 'certificate-verification') . '</p></div>';
         }
     }
+    if (isset($_GET['added'])) {
+        if ($_GET['added'] === '1') {
+            echo '<div class="notice notice-success"><p>' . __('Certificate added successfully.', 'certificate-verification') . '</p></div>';
+        } else {
+            echo '<div class="notice notice-error"><p>' . __('Error adding certificate.', 'certificate-verification') . '</p></div>';
+        }
+    }
+    if (isset($_GET['updated'])) {
+        if ($_GET['updated'] === '1') {
+            echo '<div class="notice notice-success"><p>' . __('Certificate updated successfully.', 'certificate-verification') . '</p></div>';
+        } else {
+            echo '<div class="notice notice-error"><p>' . __('Error updating certificate.', 'certificate-verification') . '</p></div>';
+        }
+    }
     settings_errors();
     ?>
 
