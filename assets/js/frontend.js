@@ -111,4 +111,19 @@ jQuery(document).ready(function($) {
             }
         });
     });
+
+    jQuery(document).ready(function($) {
+        // Optional: AJAX verification before redirect
+        $('.certificate-verification-form').on('submit', function(e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var certificateId = form.find('#certificate_id').val();
+            var verificationCode = form.find('#verification_code').val();
+
+            // Redirect to verification page with parameters
+            window.location.href = form.attr('action') + '?id=' + encodeURIComponent(certificateId) +
+                (verificationCode ? '&code=' + encodeURIComponent(verificationCode) : '');
+        });
+    });
 });

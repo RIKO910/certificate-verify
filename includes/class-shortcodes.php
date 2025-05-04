@@ -27,9 +27,14 @@ class Certificate_Verification_Shortcodes {
     public function certificate_display($atts) {
         wp_enqueue_style('cert-verification-frontend');
 
+        // Get parameters from URL if not in shortcode
+        $certificate_id = isset($_GET['id']) ? sanitize_text_field($_GET['id']) : '';
+        $verification_code = isset($_GET['code']) ? sanitize_text_field($_GET['code']) : '';
+
+        // Allow shortcode attributes to override URL parameters
         $atts = shortcode_atts(array(
-            'id' => '',
-            'code' => ''
+            'id' => $certificate_id,
+            'code' => $verification_code
         ), $atts);
 
         if (empty($atts['id'])) {

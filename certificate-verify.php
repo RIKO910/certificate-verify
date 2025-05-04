@@ -21,6 +21,7 @@ require_once CERT_VERIFICATION_PATH . 'includes/class-shortcodes.php';
 require_once CERT_VERIFICATION_PATH . 'includes/class-admin.php';
 require_once CERT_VERIFICATION_PATH . 'includes/class-verification.php';
 
+
 class Certificate_Verification_System {
 
     private static $instance = null;
@@ -43,6 +44,24 @@ class Certificate_Verification_System {
         // Load assets
         add_action('wp_enqueue_scripts', array($this, 'load_frontend_assets'));
         add_action('admin_enqueue_scripts', array($this, 'load_admin_assets'));
+        add_action('init', function() {
+            add_rewrite_rule(
+                '^verify-certificate/([^/]+)/?([^/]*)/?',
+                'index.php?pagename=verify-certificate&certificate_id=$matches[1]&certificate_code=$matches[2]',
+                'top'
+            );
+
+            add_rewrite_tag('%certificate_id%', '([^&]+)');
+            add_rewrite_tag('%certificate_code%', '([^&]+)');
+        });
+
+// Flush rewrite rules on activation
+        register_activation_hook(__FILE__, function() {
+            flush_rewrite_rules();
+        });
+        register_activation_hook(__FILE__, function() {
+            flush_rewrite_rules();
+        });
     }
 
     public function init() {
