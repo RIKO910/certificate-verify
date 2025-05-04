@@ -95,13 +95,8 @@ class Certificate_Verification_Database {
         // Future version updates can be handled here
     }
 
-    public function get_certificate($certificate_id, $verification_code = '') {
+    public function get_certificate($certificate_id) {
         global $wpdb;
-
-        $where = array('certificate_id' => $certificate_id);
-        if (!empty($verification_code)) {
-            $where['verification_code'] = $verification_code;
-        }
 
         return $wpdb->get_row(
             $wpdb->prepare("SELECT * FROM {$this->table_name} WHERE certificate_id = %s", $certificate_id)
@@ -122,13 +117,15 @@ class Certificate_Verification_Database {
         return $wpdb->insert($this->table_name, $data);
     }
 
-    public function update_certificate($certificate_id, $data) {
+    public function update_certificate($original_id, $data) {
         global $wpdb;
 
         return $wpdb->update(
             $this->table_name,
             $data,
-            array('certificate_id' => $certificate_id)
+            array('certificate_id' => $original_id),
+            null,
+            array('%s')
         );
     }
 
@@ -137,17 +134,29 @@ class Certificate_Verification_Database {
 
         return $wpdb->delete(
             $this->table_name,
-            array('certificate_id' => $certificate_id)
+            array('certificate_id' => $certificate_id),
+            array('%s')
         );
     }
 
-    public function get_all_certificates($per_page = 10, $page_number = 1) {
+    public function get_all_certificates($per_page = 20, $page_number = 1) {
         global $wpdb;
 
         $offset = ($page_number - 1) * $per_page;
 
+        $sql = "SELECT * FROM {$this->table_name}";
+
+        if (!empty($_REQUEST['orderby'])) {
+            $sql .= ' ORDER BY ' . esc_sql($_REQUEST['orderby']);
+            $sql .= !empty($_REQUEST['order']) ? ' ' . esc_sql($_REQUEST['order']) : ' ASC';
+        } else {
+            $sql .= ' ORDER BY created_at DESC';
+        }
+
+        $sql .= " LIMIT %d OFFSET %d";
+
         return $wpdb->get_results(
-            $wpdb->prepare("SELECT * FROM {$this->table_name} LIMIT %d OFFSET %d", $per_page, $offset),
+            $wpdb->prepare($sql, $per_page, $offset),
             ARRAY_A
         );
     }
