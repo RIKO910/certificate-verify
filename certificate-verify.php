@@ -57,6 +57,7 @@ class Certificate_Verification_System {
 
 // Flush rewrite rules on activation
         register_activation_hook(__FILE__, function() {
+
             flush_rewrite_rules();
         });
         register_activation_hook(__FILE__, function() {
