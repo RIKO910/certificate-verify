@@ -61,6 +61,7 @@
         text-align: center;
     }
 
+
     .certificate-actions .button {
         margin: 0 10px 10px;
         display: inline-flex;
