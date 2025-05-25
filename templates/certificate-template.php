@@ -68,6 +68,7 @@
         align-items: center;
     }
 
+
     .certificate-actions .dashicons {
         margin-right: 5px;
     }
