@@ -73,6 +73,7 @@
         margin-right: 5px;
     }
 
+
     @media print {
         .certificate-actions {
             display: none;
