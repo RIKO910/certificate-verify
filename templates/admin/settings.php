@@ -1,6 +1,7 @@
 <div class="wrap certificate-verification">
     <h1><?php _e('Certificate Verification Settings', 'certificate-verification'); ?></h1>
 
+    
     <?php settings_errors(); ?>
 
     <form method="post" action="options.php">
