@@ -1,4 +1,5 @@
 <div class="wrap certificate-verification">
+    
     <h1 class="wp-heading-inline"><?php _e('Certificate Verification System', 'certificate-verification'); ?></h1>
     <a href="<?php echo admin_url('admin.php?page=certificate_verification_add'); ?>" class="page-title-action"><?php _e('Add New', 'certificate-verification'); ?></a>
     <a href="<?php echo admin_url('admin.php?page=certificate_verification_import'); ?>" class="page-title-action"><?php _e('Import', 'certificate-verification'); ?></a>

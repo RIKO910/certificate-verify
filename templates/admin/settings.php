@@ -13,6 +13,7 @@
     </form>
 
     <div class="settings-extra">
+        
         <h2><?php _e('Certificate Template Settings', 'certificate-verification'); ?></h2>
 
         <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
