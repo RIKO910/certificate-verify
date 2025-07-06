@@ -86,6 +86,7 @@ class Certificates_List_Table extends WP_List_Table {
     }
 
     public function prepare_items() {
+
         global $wpdb;
 
         $db = Certificate_Verification_Database::get_instance();
