@@ -7,6 +7,7 @@ class Certificate_Verification_Admin {
         if (null === self::$instance) {
             self::$instance = new self();
         }
+
         return self::$instance;
     }
 
