@@ -12,6 +12,7 @@ class Certificate_Verification_Admin {
     }
 
     private function __construct() {
+
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_post_import_certificates', array($this, 'handle_csv_import'));
