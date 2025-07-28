@@ -22,6 +22,7 @@ class Certificate_Verification_Admin {
     }
 
     public function add_admin_menu() {
+
         add_menu_page(
             __('Certificate Verification', 'certificate-verification'),
             __('Certificates', 'certificate-verification'),
@@ -67,6 +68,7 @@ class Certificate_Verification_Admin {
             'certificate_verification_settings',
             array($this, 'settings_page')
         );
+
     }
 
     public function register_settings() {
