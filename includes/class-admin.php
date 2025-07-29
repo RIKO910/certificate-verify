@@ -72,6 +72,7 @@ class Certificate_Verification_Admin {
     }
 
     public function register_settings() {
+
         register_setting('certificate_verification_settings', 'certificate_verification_options');
 
         add_settings_section(
